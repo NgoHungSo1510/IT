@@ -15,7 +15,7 @@ const GameContainer: React.FC = () => {
   const [gameStatus, setGameStatus] = useState<GameStatus>('idle');
   const [isAutoPlay, setIsAutoPlay] = useState<boolean>(false);
 
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     if (gameStatus === 'playing') {
@@ -27,7 +27,7 @@ const GameContainer: React.FC = () => {
   }, [gameStatus]);
 
   useEffect(() => {
-    let autoInterval: NodeJS.Timeout;
+    let autoInterval: ReturnType<typeof setInterval>;
     if (isAutoPlay && gameStatus === 'playing') {
       autoInterval = setInterval(() => handlePointClick(nextTarget), 500);
     }
@@ -45,7 +45,7 @@ const GameContainer: React.FC = () => {
   const handlePointClick = (id: number) => {
     if (gameStatus !== 'playing') return;
     if (id === nextTarget) {
-      setPoints(prev => prev.map(p => p.id === id ? { ...p, status: 'fading' } : p));
+      setPoints(prev => prev.map(p => p.id === id ? { ...p, status: 'fading' as const } : p));
       setNextTarget(prev => prev + 1);
     } else {
       setGameStatus('lost');
@@ -54,7 +54,7 @@ const GameContainer: React.FC = () => {
 
   const handleFaded = (id: number) => {
     setPoints(prev => {
-      const updatedPoints = prev.map(p => p.id === id ? { ...p, status: 'cleared' } : p);
+      const updatedPoints = prev.map(p => p.id === id ? { ...p, status: 'cleared' as const } : p);
       const allCleared = updatedPoints.every(p => p.status === 'cleared');
       if (allCleared && updatedPoints.length > 0) setGameStatus('won');
       return updatedPoints;
